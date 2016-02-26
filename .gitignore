@@ -45,3 +45,10 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Not including folders (Just trying to version control .cpp and .h)
+Debug/
+Eigen/
+GL/
+cs4496Win_Project3.vcxproj
+cs4496Win_Project3.vcxproj.filters
