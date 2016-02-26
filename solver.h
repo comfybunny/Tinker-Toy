@@ -7,7 +7,7 @@ class Solver {
 public:
 	Solver();
 
-	void solve_X_dot(Particle* particle);
+	Eigen::VectorXd solve_X_dot(Particle* particle);
 
 	enum Integrator {explicit_euler, midpoint_method};
 	

@@ -54,19 +54,23 @@ void Simulator::simulate() {
 	// clear force accumulator from previous iteration and update
 	// cout << (*forces.begin())->getAcceleration() << endl;
 
+	std::vector<Eigen::VectorXd> derivatives;
+	// cout << derivatives.size() << endl;
+	derivatives.resize(mParticles.size());
+	// cout << derivatives[0] << endl;
+
 	for (int i = 0; i < mParticles.size(); i++) {
 		mParticles[i].mAccumulatedForce.setZero();
 		mParticles[i].update_accumulated_forces(i, forces);
+
+		derivatives[i] = solver.solve_X_dot(&mParticles[i]);
 	}
     
     for (int i = 0; i < mParticles.size(); i++) {
-        mParticles[i].mPosition += mParticles[i].mVelocity * mTimeStep;
-        mParticles[i].mVelocity += mParticles[i].mAccumulatedForce / mParticles[i].mMass * mTimeStep;
+        mParticles[i].mPosition += Eigen::Vector3d (derivatives[i][0], derivatives[i][1], derivatives[i][2]) * mTimeStep;
+        mParticles[i].mVelocity += Eigen::Vector3d(derivatives[i][3], derivatives[i][4], derivatives[i][5]) * mTimeStep;
     }
-    
-    for (int i = 0; i < mParticles.size(); i++) {
-        mParticles[i].mAccumulatedForce.setZero();
-    }
+
 }
 
 

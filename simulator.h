@@ -11,6 +11,7 @@
 #include "particle.h"
 #include "force.h"
 #include "gravity.h"
+#include "solver.h"
 
 // class containing objects to be simulated
 class Simulator {
@@ -34,6 +35,7 @@ private:
     std::vector<Particle> mParticles;
 	std::vector<Force*> forces;
 	Gravity gravity;
+	Solver solver;
 };
 
 
