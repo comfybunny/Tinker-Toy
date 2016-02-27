@@ -12,6 +12,7 @@
 #include "force.h"
 #include "gravity.h"
 #include "solver.h"
+#include "constraint.h"
 
 // class containing objects to be simulated
 class Simulator {
@@ -34,8 +35,10 @@ private:
     double mTimeStep;       // time step
     std::vector<Particle> mParticles;
 	std::vector<Force*> forces;
+	std::vector<Constraint> constraints;
 	Gravity gravity;
 	Solver solver;
+	Eigen::MatrixXd W;
 };
 
 
