@@ -22,9 +22,9 @@ Eigen::VectorXd Solver::solve_X_dot(Particle* particle) {
 			toReturn[1] = particle->mVelocity[1];
 			toReturn[2] = particle->mVelocity[2];
 
-			toReturn[3] = particle->mAccumulatedForce[0] / particle->mMass;
-			toReturn[4] = particle->mAccumulatedForce[1] / particle->mMass;
-			toReturn[5] = particle->mAccumulatedForce[2] / particle->mMass;
+			toReturn[3] = particle->legal_force[0] / particle->mMass;
+			toReturn[4] = particle->legal_force[1] / particle->mMass;
+			toReturn[5] = particle->legal_force[2] / particle->mMass;
 
 			break;
 		case midpoint_method:
