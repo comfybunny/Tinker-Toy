@@ -29,17 +29,19 @@ void Simulator::reset() {
 	for (int i = 1; i < (mParticles.size() - 1); i++ ) {
 		// cout << "TEST" << endl;
 		for (int xyz = 0; xyz < 3; xyz++) {
-			W(i-1 + xyz, i - 1 + xyz) = mParticles[i].mMass;
+			W(i-1 + xyz, i - 1 + xyz) = 1.0/mParticles[i].mMass;
 		}
 	}
 	// cout << "TEST" << endl;
 
 	// Init particle positions (default is 0, 0, 0)
-	mParticles[0].mPosition[0] = 0.2;
+	mParticles[0].mPosition[0] = 0.0;
 	mParticles[0].mPosition[1] = 0.0;
-	
-	mParticles[1].mPosition[0] = 0.4;
-	mParticles[1].mPosition[1] = -0.1;
+	mParticles[0].mPosition[2] = 0.0;
+
+	mParticles[1].mPosition[0] = 0.2;
+	mParticles[1].mPosition[1] = 0.0;
+	mParticles[1].mPosition[2] = 0.0;
 
 	mTimeStep = 0.0003;
 	forces.clear();
@@ -52,27 +54,20 @@ void Simulator::reset() {
 		gravity.addParticlesImpacted(i);
 		// cout << gravity.getParticlesImpacted()[i] << endl;
     }
-	addForce(&gravity);
+	forces.push_back(&gravity);
 	// cout << (*forces.begin())->getAcceleration() << endl;
-
+	constraints.clear();
 	constraints.push_back(Constraint(&mParticles[0], &mParticles[1]));
 }
 
-void Simulator::addForce(Force * newForce){
-	forces.push_back(newForce);
-}
-
 void Simulator::simulate() {
-	// clear force accumulator from previous iteration
-	// cout << (*forces.begin())->getAcceleration() << endl;
-	
-	// update applied forces here
+	// clear force accumulator from previous iteration and update applied forces here
 	for (int i = 0; i < mParticles.size(); i++) {
 		mParticles[i].mAccumulatedForce.setZero();
-		mParticles[i].legal_force.setZero();
+		mParticles[i].fhat.setZero();
 		mParticles[i].update_accumulated_forces(i, forces);
 	}
-    
+	
 	Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(constraints.size(), (mParticles.size()-1)*3);
 	Eigen::MatrixXd jacobianDot = Eigen::MatrixXd::Zero(constraints.size(), (mParticles.size() - 1) * 3);;
 	
@@ -89,12 +84,8 @@ void Simulator::simulate() {
 		}
 	}
 
-	//cout << jacobianDot << endl;
-	//cout << endl;
-
-	Eigen::VectorXd Q((mParticles.size() - 1) * 3);
-	Eigen::VectorXd qdot((mParticles.size() - 1) * 3);
-
+	Eigen::VectorXd Q((mParticles.size() - 1) * 3, mParticles.size() - 1);
+	Eigen::VectorXd qdot((mParticles.size() - 1) * 3, mParticles.size() - 1);
 
 	for (int i = 1; i < mParticles.size(); i++) {
 		for (int temp = 0; temp < 3; temp++) {
@@ -103,21 +94,16 @@ void Simulator::simulate() {
 		}
 	}
 
-	
-
-	Eigen::MatrixXd lambda = (jacobian*W*(jacobian.transpose())).inverse()*(- jacobianDot*qdot - jacobian*W*Q);
 	// one lambda for each particle
-	// cout << lambda.rows() << endl;
-	// cout << lambda.cols() << endl;
-
-
+	Eigen::MatrixXd lambda = (jacobian*W*(jacobian.transpose())).inverse()*(- jacobianDot*qdot - jacobian*W*Q);
+	cout << lambda << endl;
+	cout << endl;
 	for (int i = 1; i < mParticles.size(); i++) {
 		for (int j = 0; j < constraints.size(); j++) {
 		}
 	}
 
-	mParticles[1].legal_force = constraints[0].dCdx2()*lambda;
-	// cout << durp << endl;
+	mParticles[1].fhat = constraints[0].dCdx2()*lambda;
 
 	std::vector<Eigen::VectorXd> derivatives;
 	derivatives.resize(mParticles.size()-1);
@@ -125,10 +111,12 @@ void Simulator::simulate() {
 	for (int i = 1; i < mParticles.size(); i++) {
 		derivatives[i-1] = solver.solve_X_dot(&mParticles[i]);
 	}
-	
-	// cout << "HELLOOO" << endl;
 
 	mParticles[1].mPosition += Eigen::Vector3d(derivatives[0][0], derivatives[0][1], derivatives[0][2]) * mTimeStep;
+	// cout << mParticles[0].mPosition << endl;
+	// cout << mParticles[1].mPosition << endl;
+	// cout << endl;
+
 	mParticles[1].mVelocity += Eigen::Vector3d(derivatives[0][3], derivatives[0][4], derivatives[0][5]) * mTimeStep;
     for (int i = 0; i < mParticles.size(); i++) {
         

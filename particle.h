@@ -32,7 +32,7 @@ public:
 	Eigen::Vector3d x_dot;
 	Eigen::Vector3d v_dot;
     Eigen::Vector3d mAccumulatedForce;
-	Eigen::Vector3d legal_force;
+	Eigen::Vector3d fhat;
     Eigen::Vector4d mColor;
 
 	void update_accumulated_forces(int indexNum, std::vector<Force*> forces_list);

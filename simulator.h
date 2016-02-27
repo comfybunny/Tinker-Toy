@@ -29,8 +29,6 @@ public:
     
     void reset();
 
-	void addForce(Force* newForce);
-
 private:
     double mTimeStep;       // time step
     std::vector<Particle> mParticles;
