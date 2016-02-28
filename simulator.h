@@ -29,6 +29,10 @@ public:
     
     void reset();
 
+	int getSelectedParticle();
+
+	void addParticle(float x_pos, float y_pos);
+
 private:
     double mTimeStep;       // time step
     std::vector<Particle> mParticles;
@@ -37,6 +41,7 @@ private:
 	Gravity gravity;
 	Solver solver;
 	Eigen::MatrixXd W;
+	int selected_particle = 0;
 };
 
 

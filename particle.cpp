@@ -10,6 +10,12 @@
 
 using namespace std;
 
+Particle::Particle(float x, float y){
+	Particle();
+	mPosition[0] = x;
+	mPosition[y] = y;
+}
+
 void Particle::draw() {
     glColor4d(mColor[0], mColor[1], mColor[2], mColor[3]);
     glPushMatrix();

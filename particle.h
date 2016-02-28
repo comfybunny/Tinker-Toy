@@ -17,11 +17,12 @@ public:
         mMass = 1.0;
         mPosition.setZero();
         mVelocity.setZero();
-		x_dot.setZero();
-		v_dot.setZero();
         mAccumulatedForce.setZero();
         mColor << 0.9, 0.2, 0.2, 1.0; // Red
     }
+
+	Particle(float x, float y);
+
     virtual ~Particle() {}
     
     void draw();
@@ -29,8 +30,6 @@ public:
     double mMass;
     Eigen::Vector3d mPosition;
     Eigen::Vector3d mVelocity;
-	Eigen::Vector3d x_dot;
-	Eigen::Vector3d v_dot;
     Eigen::Vector3d mAccumulatedForce;
 	Eigen::Vector3d fhat;
     Eigen::Vector4d mColor;

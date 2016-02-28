@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <stdlib.h>
+#include <math.h> 
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <GLUT/glut.h>
@@ -28,7 +29,7 @@ Simulator mySimulator;
 bool simulating = false;
 int frame_number = 0;
 Timer timer;
-
+int fov = 45;
 // opengl functions
 void myGlutResize(int w, int h);
 
@@ -44,7 +45,6 @@ void myGlutMotion(int x, int y);
 
 void ShowText();
 
-void DrawBackground();
 
 // main function
 int main(int argc, char *argv[])
@@ -107,7 +107,7 @@ void myGlutDisplay(void) {
     
     glMatrixMode(GL_PROJECTION);    // opengl matrix for camera
     glLoadIdentity();
-    gluPerspective(45, window_width*1.0/window_height, 0.01, 1000);
+    gluPerspective(fov, window_width*1.0/window_height, 0.01, 1000);
     glMatrixMode(GL_MODELVIEW);     // opengl matrix for object
     glLoadIdentity();
     
@@ -143,10 +143,27 @@ void myGlutDisplay(void) {
     glVertex3f(p2[0], p2[1], p2[2]);
     glEnd();
     glEnable(GL_LIGHTING);
-    
-    // Draw particles
+
+	GLfloat matrix[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+
+	Eigen::MatrixXd A(4, 4);
+	A << matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5], matrix[6], matrix[7], matrix[8], matrix[9], matrix[10], matrix[11], matrix[12], matrix[13], matrix[14], matrix[15];
+	// cout << A << endl;
+
+	// Draw particles
     for (int i = 0; i < mySimulator.getNumParticles(); i++) {
-        mySimulator.getParticle(i)->draw();
+		cout << mySimulator.getNumParticles() << endl;
+		if (i == mySimulator.getSelectedParticle()) {
+			glColor4d(.2, .2, .9, 1.0);
+			glPushMatrix();
+			glTranslated(mySimulator.getParticle(i)->mPosition[0], mySimulator.getParticle(i)->mPosition[0], mySimulator.getParticle(i)->mPosition[0]);
+			glutSolidSphere(0.01, 20, 20);
+			glPopMatrix();
+		}
+		else {
+			mySimulator.getParticle(i)->draw();
+		}
     }
     
     // render the text
@@ -179,7 +196,13 @@ void myGlutKeyboard(unsigned char key, int x, int y) {
 void myGlutMouse(int button, int state, int x, int y) {
     mouse_down = (state == GLUT_DOWN);
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        cout << "Left Mouse Clicked" << endl;
+		// selecting particles to start the center one will be selected
+		float normalized_x = float(x)*2.0 / window_width - 1.0;
+		float normalized_y = float(y)*2.0 / window_height - 1.0;
+		float scene_x = tan(fov / 2.0)*normalized_x*window_width / (1.0*window_height);
+		float scene_y = tan(fov / 2.0)*normalized_y;
+		mySimulator.addParticle(scene_x, scene_y);
+		cout << mySimulator.getNumParticles() << endl;
     } else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
         cout << "Right Mouse Clicked" << endl;
     }

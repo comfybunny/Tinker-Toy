@@ -60,6 +60,15 @@ void Simulator::reset() {
 	constraints.push_back(Constraint(&mParticles[0], &mParticles[1]));
 }
 
+int Simulator::getSelectedParticle(){
+	return selected_particle;
+}
+
+void Simulator::addParticle(float x_pos, float y_pos){
+	mParticles.push_back(Particle(x_pos, y_pos));
+}
+
+
 void Simulator::simulate() {
 	// clear force accumulator from previous iteration and update applied forces here
 	for (int i = 0; i < mParticles.size(); i++) {
