@@ -11,9 +11,13 @@
 using namespace std;
 
 Particle::Particle(float x, float y){
-	Particle();
+	mMass = 1.0;
+	mPosition.setZero();
+	mVelocity.setZero();
+	mAccumulatedForce.setZero();
+	mColor << 0.9, 0.2, 0.2, 1.0; // Red
 	mPosition[0] = x;
-	mPosition[y] = y;
+	mPosition[1] = y;
 }
 
 void Particle::draw() {

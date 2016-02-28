@@ -35,7 +35,7 @@ public:
 
 private:
     double mTimeStep;       // time step
-    std::vector<Particle> mParticles;
+    std::vector<Particle*> mParticles;
 	std::vector<Force*> forces;
 	std::vector<Constraint> constraints;
 	Gravity gravity;
