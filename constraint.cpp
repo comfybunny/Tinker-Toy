@@ -33,3 +33,14 @@ Eigen::Vector3d Constraint::dCdotdx2(){
 	return particle2->mVelocity - particle1->mVelocity;
 }
 
+float Constraint::x2(){
+	Eigen::Vector3d x = particle1->mPosition-particle2->mPosition;
+	return x.dot(x);
+}
+
+float Constraint::Cdot(){
+	Eigen::Vector3d x = particle1->mPosition - particle2->mPosition;
+	Eigen::Vector3d v = particle1->mVelocity - particle2->mVelocity;
+	return x.dot(v);
+}
+

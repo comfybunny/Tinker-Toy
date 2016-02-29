@@ -33,9 +33,9 @@ public:
 
 	void addParticle(float x_pos, float y_pos);
 
-	int getFrameNum() {
-		return frame_num;
-	}
+	bool hasFeedback();
+
+	void toggleFeedback();
 
 private:
     double mTimeStep;       // time step
@@ -45,8 +45,10 @@ private:
 	Gravity gravity;
 	Solver solver;
 	Eigen::MatrixXd W;
-	int selected_particle = 0;
-	int frame_num = 0;
+	int selected_particle;
+	bool feedback;
+	double ks;
+	double kd;
 };
 
 

@@ -13,6 +13,8 @@ public:
 	Eigen::Vector3d dCdx2();
 	Eigen::Vector3d dCdotdx1();
 	Eigen::Vector3d dCdotdx2();
+	float x2();
+	float Cdot();
 
 private:
 	Particle* particle1;

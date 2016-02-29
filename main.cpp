@@ -136,8 +136,6 @@ void myGlutDisplay(void) {
     glEnd();
     // Draw a line
 
-	cout << mySimulator.getFrameNum() << endl;
-
 	for (int i = 0; i < mySimulator.getNumParticles() - 1; i++) {
 		glBegin(GL_LINES);
 		Eigen::Vector3d p1 = mySimulator.getParticle(i)->mPosition;
@@ -192,6 +190,9 @@ void myGlutKeyboard(unsigned char key, int x, int y) {
             frame_number = 0;
             simulating = false;
             break;
+		case 'f':
+			mySimulator.toggleFeedback();
+			break;
         default:
             break;
     }
@@ -267,6 +268,9 @@ void ShowText()
     
     strcpy(s_tmp,"\'r\': Reset simulation");
     RenderBitmapString(10, 20 + 28, pFont, s_tmp);
+
+	strcpy(s_tmp, mySimulator.hasFeedback()? "\'f\': Toggle feedback: true" : "\'f\': Toggle feedback: false");
+	RenderBitmapString(10, 20 + 42, pFont, s_tmp);
     
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);

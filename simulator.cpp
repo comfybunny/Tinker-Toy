@@ -8,6 +8,10 @@ using namespace std;
 Simulator::Simulator() {
     // initialize the particles
 	reset();
+	selected_particle = 0;
+	feedback = false;
+	ks = 50;
+	kd = 30;
 }
 
 int Simulator::getNumParticles() {
@@ -79,6 +83,14 @@ void Simulator::addParticle(float x_pos, float y_pos){
 	constraints.push_back(Constraint(mParticles[mParticles.size()-2], mParticles[mParticles.size() - 1]));
 }
 
+bool Simulator::hasFeedback(){
+	return feedback;
+}
+
+void Simulator::toggleFeedback(){
+	feedback = !feedback;
+}
+
 
 void Simulator::simulate() {
 	// clear force accumulator from previous iteration and update applied forces here
@@ -128,7 +140,20 @@ void Simulator::simulate() {
 	}
 	
 	// one lambda for each particle
-	Eigen::MatrixXd lambda = (jacobian*W*(jacobian.transpose())).inverse()*(- jacobianDot*qdot - jacobian*W*Q);
+	Eigen::MatrixXd tempCequation = -jacobianDot*qdot - jacobian*W*Q;
+	// if feedback then need to so -ksC-kdCdot
+	
+		Eigen::VectorXd C(constraints.size());
+		Eigen::VectorXd Cdot(constraints.size());
+		for (int i = 0; i < constraints.size(); i++) {
+			C(i) = 0.5*constraints[i].x2()-0.5;
+			Cdot(i) = constraints[i].Cdot();
+		}
+		cout << Cdot << endl;
+	if (feedback) {
+		tempCequation = tempCequation - ks*C - kd*Cdot;
+	}
+	Eigen::MatrixXd lambda = (jacobian*W*(jacobian.transpose())).inverse()*(tempCequation);
 	Eigen::MatrixXd legal_forces = jacobian.transpose()*lambda;
 	
 	/**
@@ -164,7 +189,5 @@ void Simulator::simulate() {
 		mParticles[i]->mVelocity += Eigen::Vector3d(derivatives[i-1][3], derivatives[i - 1][4], derivatives[i - 1][5]) * mTimeStep;
 	}
 
-	frame_num += 1;
 }
-
 
