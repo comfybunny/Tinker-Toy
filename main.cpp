@@ -193,6 +193,9 @@ void myGlutKeyboard(unsigned char key, int x, int y) {
 		case 'f':
 			mySimulator.toggleFeedback();
 			break;
+		case 's':
+			mySimulator.toggleSolver();
+			break;
         default:
             break;
     }
@@ -271,6 +274,11 @@ void ShowText()
 
 	strcpy(s_tmp, mySimulator.hasFeedback()? "\'f\': Toggle feedback: true" : "\'f\': Toggle feedback: false");
 	RenderBitmapString(10, 20 + 42, pFont, s_tmp);
+
+	string temp = string("\'s\': Toggle solver : ") + mySimulator.getSolverName();
+
+	strcpy(s_tmp, temp.c_str());
+	RenderBitmapString(10, 20 + 56, pFont, s_tmp);
     
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);

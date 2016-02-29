@@ -37,6 +37,10 @@ public:
 
 	void toggleFeedback();
 
+	void toggleSolver();
+
+	char* getSolverName();
+
 private:
     double mTimeStep;       // time step
     std::vector<Particle*> mParticles;

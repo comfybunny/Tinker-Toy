@@ -91,6 +91,14 @@ void Simulator::toggleFeedback(){
 	feedback = !feedback;
 }
 
+void Simulator::toggleSolver(){
+	solver.toggle();
+}
+
+char * Simulator::getSolverName(){
+	return solver.getSolverName();
+}
+
 
 void Simulator::simulate() {
 	// clear force accumulator from previous iteration and update applied forces here
