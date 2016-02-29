@@ -153,7 +153,7 @@ void myGlutDisplay(void) {
 
 	// Draw particles
     for (int i = 0; i < mySimulator.getNumParticles(); i++) {
-		cout << mySimulator.getNumParticles() << endl;
+		// cout << mySimulator.getNumParticles() << endl;
 		if (i == mySimulator.getSelectedParticle()) {
 			glColor4d(.2, .2, .9, 1.0);
 			glPushMatrix();
@@ -202,7 +202,7 @@ void myGlutMouse(int button, int state, int x, int y) {
 		float scene_x = tan(fov / 2.0)*normalized_x*window_width / (1.0*window_height);
 		float scene_y = tan(fov / 2.0)*normalized_y;
 		mySimulator.addParticle(scene_x, scene_y);
-		cout << mySimulator.getNumParticles() << endl;
+		// cout << mySimulator.getNumParticles() << endl;
     } else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
         cout << "Right Mouse Clicked" << endl;
     }

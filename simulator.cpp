@@ -27,9 +27,7 @@ void Simulator::reset() {
 	mParticles.push_back(new Particle());
 	mParticles.push_back(new Particle());
 	W = Eigen::MatrixXd::Identity((mParticles.size() - 1) * 3, (mParticles.size() - 1) * 3);
-	Eigen::VectorXd weights((mParticles.size() - 1) * 3);
 	for (int i = 1; i < (mParticles.size() - 1); i++ ) {
-		// cout << "TEST" << endl;
 		for (int xyz = 0; xyz < 3; xyz++) {
 			W(i-1 + xyz, i - 1 + xyz) = 1.0/mParticles[i]->mMass;
 		}
@@ -67,7 +65,18 @@ int Simulator::getSelectedParticle(){
 }
 
 void Simulator::addParticle(float x_pos, float y_pos){
+	// forces[0] will always be gravity
+	forces[0]->addParticlesImpacted(mParticles.size());
 	mParticles.push_back(new Particle(x_pos, y_pos));
+	// update W matrix
+	W = Eigen::MatrixXd::Identity((mParticles.size() - 1) * 3, (mParticles.size() - 1) * 3);
+	for (int i = 1; i < (mParticles.size() - 1); i++) {
+		for (int xyz = 0; xyz < 3; xyz++) {
+			W(i - 1 + xyz, i - 1 + xyz) = 1.0 / mParticles[i]->mMass;
+		}
+	}
+	// add new constraint
+	constraints.push_back(Constraint(mParticles[mParticles.size()-2], mParticles[mParticles.size() - 1]));
 }
 
 
@@ -81,22 +90,25 @@ void Simulator::simulate() {
 	
 	Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(constraints.size(), (mParticles.size()-1)*3);
 	Eigen::MatrixXd jacobianDot = Eigen::MatrixXd::Zero(constraints.size(), (mParticles.size() - 1) * 3);;
-	
+
 	// not including the center circle which is at index 0 ; the center circle is a fixed point
 	for (int i = 1; i < mParticles.size(); i++) {
 		for (int j = 0; j < constraints.size(); j++) {
 			Constraint currConstraint = constraints[j];
-			Eigen::Vector3d currJ = currConstraint.dCdx2();
-			Eigen::Vector3d currJdot = currConstraint.dCdotdx2();
-			for (int temp = 0; temp < 3; temp++) {
-				jacobian(j, (i - 1)*3 + temp) = currJ(temp);
-				jacobianDot(j, (i - 1)*3 + temp) = currJdot(temp);
+			if (mParticles[i] == currConstraint.getParticle2()) {
+				Eigen::Vector3d currJ = currConstraint.dCdx2();
+				Eigen::Vector3d currJdot = currConstraint.dCdotdx2();
+				for (int temp = 0; temp < 3; temp++) {
+					jacobian(j, (i - 1) * 3 + temp) = currJ[temp];
+					jacobianDot(j, (i - 1) * 3 + temp) = currJdot[temp];
+				}
 			}
+			
 		}
 	}
 
-	Eigen::VectorXd Q((mParticles.size() - 1) * 3, mParticles.size() - 1);
-	Eigen::VectorXd qdot((mParticles.size() - 1) * 3, mParticles.size() - 1);
+	Eigen::VectorXd Q((mParticles.size() - 1) * 3);
+	Eigen::VectorXd qdot((mParticles.size() - 1) * 3);
 
 	for (int i = 1; i < mParticles.size(); i++) {
 		for (int temp = 0; temp < 3; temp++) {
@@ -104,35 +116,46 @@ void Simulator::simulate() {
 			qdot((i - 1) * 3 + temp) = mParticles[i]->mVelocity(temp);
 		}
 	}
-
+	
 	// one lambda for each particle
 	Eigen::MatrixXd lambda = (jacobian*W*(jacobian.transpose())).inverse()*(- jacobianDot*qdot - jacobian*W*Q);
-	cout << lambda << endl;
-	cout << endl;
+	Eigen::MatrixXd legal_forces = jacobianDot.transpose()*lambda;
+	
+	/**
+	cout << "JACOBIAN" << endl;
+	cout << jacobian.rows() << endl;
+	cout << jacobian.cols() << endl;
+	cout << "W" << endl;
+	cout << W.rows() << endl;
+	cout << W.cols() << endl;
+	cout << "qdot" << endl;
+	cout << qdot.rows() << endl;
+	cout << qdot.cols() << endl;
+	cout << "Q" << endl;
+	cout << Q.rows() << endl;
+	cout << Q.cols() << endl;
+	cout << lambda.rows() << endl;
+	cout << lambda.cols() << endl;
+	**/
+
+	cout << jacobian << endl;
 	for (int i = 1; i < mParticles.size(); i++) {
 		for (int j = 0; j < constraints.size(); j++) {
+			if (mParticles[i] == constraints[j].getParticle2()) {
+				//cout << constraints[j].dCdx2().rows() << endl;
+				//cout << constraints[j].dCdx2().cols() << endl;
+				mParticles[i]->fhat = constraints[j].dCdx2()*lambda(i-1);
+			}
 		}
 	}
-
-	mParticles[1]->fhat = constraints[0].dCdx2()*lambda;
-
 	std::vector<Eigen::VectorXd> derivatives;
 	derivatives.resize(mParticles.size()-1);
 
 	for (int i = 1; i < mParticles.size(); i++) {
 		derivatives[i-1] = solver.solve_X_dot(mParticles[i]);
+		mParticles[i]->mPosition += Eigen::Vector3d(derivatives[i-1][0], derivatives[i - 1][1], derivatives[i - 1][2]) * mTimeStep;
+		mParticles[i]->mVelocity += Eigen::Vector3d(derivatives[i-1][3], derivatives[i - 1][4], derivatives[i - 1][5]) * mTimeStep;
 	}
-
-	mParticles[1]->mPosition += Eigen::Vector3d(derivatives[0][0], derivatives[0][1], derivatives[0][2]) * mTimeStep;
-	// cout << mParticles[0].mPosition << endl;
-	// cout << mParticles[1].mPosition << endl;
-	// cout << endl;
-
-	mParticles[1]->mVelocity += Eigen::Vector3d(derivatives[0][3], derivatives[0][4], derivatives[0][5]) * mTimeStep;
-    for (int i = 0; i < mParticles.size(); i++) {
-        
-    }
-
 }
 
 

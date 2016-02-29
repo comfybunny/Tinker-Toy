@@ -15,6 +15,7 @@ Particle::Particle(float x, float y){
 	mPosition.setZero();
 	mVelocity.setZero();
 	mAccumulatedForce.setZero();
+	fhat.setZero();
 	mColor << 0.9, 0.2, 0.2, 1.0; // Red
 	mPosition[0] = x;
 	mPosition[1] = y;
