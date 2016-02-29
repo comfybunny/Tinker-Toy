@@ -13,10 +13,11 @@ public:
 	Eigen::Vector3d dCdx2();
 	Eigen::Vector3d dCdotdx1();
 	Eigen::Vector3d dCdotdx2();
-	float x2();
+	float C();
 	float Cdot();
 
 private:
 	Particle* particle1;
 	Particle* particle2;
+	float radius2;
 };

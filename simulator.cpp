@@ -146,10 +146,9 @@ void Simulator::simulate() {
 		Eigen::VectorXd C(constraints.size());
 		Eigen::VectorXd Cdot(constraints.size());
 		for (int i = 0; i < constraints.size(); i++) {
-			C(i) = 0.5*constraints[i].x2()-0.5;
+			C(i) = constraints[i].C();
 			Cdot(i) = constraints[i].Cdot();
 		}
-		cout << Cdot << endl;
 	if (feedback) {
 		tempCequation = tempCequation - ks*C - kd*Cdot;
 	}

@@ -7,6 +7,8 @@ using namespace std;
 Constraint::Constraint(Particle* meow, Particle* ruff){
 	particle1 = meow;
 	particle2 = ruff;
+	Eigen::Vector3d x = particle1->mPosition - particle2->mPosition;
+	radius2 = x.dot(x);
 }
 
 Particle* Constraint::getParticle1(){
@@ -33,9 +35,9 @@ Eigen::Vector3d Constraint::dCdotdx2(){
 	return particle2->mVelocity - particle1->mVelocity;
 }
 
-float Constraint::x2(){
+float Constraint::C(){
 	Eigen::Vector3d x = particle1->mPosition-particle2->mPosition;
-	return x.dot(x);
+	return 0.5*(x.dot(x)-radius2);
 }
 
 float Constraint::Cdot(){
