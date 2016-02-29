@@ -33,6 +33,10 @@ public:
 
 	void addParticle(float x_pos, float y_pos);
 
+	int getFrameNum() {
+		return frame_num;
+	}
+
 private:
     double mTimeStep;       // time step
     std::vector<Particle*> mParticles;
@@ -42,6 +46,7 @@ private:
 	Solver solver;
 	Eigen::MatrixXd W;
 	int selected_particle = 0;
+	int frame_num = 0;
 };
 
 

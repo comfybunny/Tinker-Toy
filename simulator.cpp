@@ -103,9 +103,19 @@ void Simulator::simulate() {
 					jacobianDot(j, (i - 1) * 3 + temp) = currJdot[temp];
 				}
 			}
+			else if (mParticles[i] == currConstraint.getParticle1()) {
+				Eigen::Vector3d currJ = currConstraint.dCdx1();
+				Eigen::Vector3d currJdot = currConstraint.dCdotdx1();
+				for (int temp = 0; temp < 3; temp++) {
+					jacobian(j, (i - 1) * 3 + temp) = currJ[temp];
+					jacobianDot(j, (i - 1) * 3 + temp) = currJdot[temp];
+				}
+			}
 			
 		}
 	}
+
+	// cout << jacobian << endl;
 
 	Eigen::VectorXd Q((mParticles.size() - 1) * 3);
 	Eigen::VectorXd qdot((mParticles.size() - 1) * 3);
@@ -119,7 +129,7 @@ void Simulator::simulate() {
 	
 	// one lambda for each particle
 	Eigen::MatrixXd lambda = (jacobian*W*(jacobian.transpose())).inverse()*(- jacobianDot*qdot - jacobian*W*Q);
-	Eigen::MatrixXd legal_forces = jacobianDot.transpose()*lambda;
+	Eigen::MatrixXd legal_forces = jacobian.transpose()*lambda;
 	
 	/**
 	cout << "JACOBIAN" << endl;
@@ -138,15 +148,12 @@ void Simulator::simulate() {
 	cout << lambda.cols() << endl;
 	**/
 
-	cout << jacobian << endl;
+	// cout << legal_forces << endl;
+	
 	for (int i = 1; i < mParticles.size(); i++) {
-		for (int j = 0; j < constraints.size(); j++) {
-			if (mParticles[i] == constraints[j].getParticle2()) {
-				//cout << constraints[j].dCdx2().rows() << endl;
-				//cout << constraints[j].dCdx2().cols() << endl;
-				mParticles[i]->fhat = constraints[j].dCdx2()*lambda(i-1);
-			}
-		}
+		mParticles[i]->fhat[0] = legal_forces((i - 1) * 3);
+		mParticles[i]->fhat[1] = legal_forces((i - 1) * 3 + 1);
+		mParticles[i]->fhat[2] = legal_forces((i - 1) * 3 + 2);
 	}
 	std::vector<Eigen::VectorXd> derivatives;
 	derivatives.resize(mParticles.size()-1);
@@ -156,6 +163,8 @@ void Simulator::simulate() {
 		mParticles[i]->mPosition += Eigen::Vector3d(derivatives[i-1][0], derivatives[i - 1][1], derivatives[i - 1][2]) * mTimeStep;
 		mParticles[i]->mVelocity += Eigen::Vector3d(derivatives[i-1][3], derivatives[i - 1][4], derivatives[i - 1][5]) * mTimeStep;
 	}
+
+	frame_num += 1;
 }
 
 

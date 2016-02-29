@@ -135,13 +135,19 @@ void myGlutDisplay(void) {
     }
     glEnd();
     // Draw a line
+
+	cout << mySimulator.getFrameNum() << endl;
+
+	for (int i = 0; i < mySimulator.getNumParticles() - 1; i++) {
+		glBegin(GL_LINES);
+		Eigen::Vector3d p1 = mySimulator.getParticle(i)->mPosition;
+		Eigen::Vector3d p2 = mySimulator.getParticle(i+1)->mPosition;
+		glVertex3f(p1[0], p1[1], p1[2]);
+		glVertex3f(p2[0], p2[1], p2[2]);
+		glEnd();
+	}
     
-    glBegin(GL_LINES);
-    Eigen::Vector3d p1 = mySimulator.getParticle(0)->mPosition;
-    Eigen::Vector3d p2 = mySimulator.getParticle(1)->mPosition;
-    glVertex3f(p1[0], p1[1], p1[2]);
-    glVertex3f(p2[0], p2[1], p2[2]);
-    glEnd();
+
     glEnable(GL_LIGHTING);
 
 	GLfloat matrix[16];
