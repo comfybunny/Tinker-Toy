@@ -7,7 +7,6 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <string>
-#include "force.h"
 
 // class for spline
 class Particle {
@@ -34,8 +33,7 @@ public:
     Eigen::Vector3d mAccumulatedForce;
 	Eigen::Vector3d fhat;
     Eigen::Vector4d mColor;
-
-	void update_accumulated_forces(int indexNum, std::vector<Force*> forces_list);
+	void addForce(Eigen::Vector3d toAdd);
 };
 
 #endif  // PARTICLE_H

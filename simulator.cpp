@@ -31,7 +31,6 @@ double Simulator::getTimeStep() {
 }
 
 void Simulator::reset() {
-
 	selected_particle = 0;
 	feedback = false;
 	ks = 50;
@@ -60,6 +59,7 @@ void Simulator::reset() {
 
 	mTimeStep = 0.0003;
 	forces.clear();
+	//Force* gravity = new Force(Eigen::Vector3d(0.0, -9.8, 0.0));
 	gravity.resetParticlesImpacted();
 
     for (int i = 0; i < mParticles.size(); i++) {
@@ -142,15 +142,36 @@ void Simulator::updateSelectedParticle(Eigen::Vector3d click_pt){
 	selected_particle = closestPointIndex;
 }
 
+void Simulator::addForce(Eigen::Vector3d mouseVector){
+	// cout << mouseVector << endl;
+	Force* tempForce = new Force(mouseVector*1000);
+	//cout << mouseVector * 1000 << endl;
+	tempForce->addParticlesImpacted(selected_particle);
+	forces.push_back(tempForce);
+}
+
 
 void Simulator::simulate() {
+	if (forces.size() == 2) {
+		//cout << forces.size() << endl;
+	}
 	// clear force accumulator from previous iteration and update applied forces here
 	for (int i = 0; i < mParticles.size(); i++) {
 		mParticles[i]->mAccumulatedForce.setZero();
 		mParticles[i]->fhat.setZero();
-		mParticles[i]->update_accumulated_forces(i, forces);
+		for (int j = 0; j < forces.size(); j++) {
+			std::vector<int> currForceParticlesImpacted = forces[j]->getParticlesImpacted();
+			if (std::find(currForceParticlesImpacted.begin(), currForceParticlesImpacted.end(), i) != currForceParticlesImpacted.end()) {
+				if (j == 1) {
+					cout << forces[j]->getAcceleration() << endl;
+				}
+				mParticles[i]->addForce(forces[j]->getAcceleration()*mParticles[i]->mMass);
+			}
+		}
 	}
 	
+	mParticles[1]->mAccumulatedForce.setZero();
+
 	Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(constraints.size(), (mParticles.size()-1)*3);
 	Eigen::MatrixXd jacobianDot = Eigen::MatrixXd::Zero(constraints.size(), (mParticles.size() - 1) * 3);;
 
@@ -240,5 +261,10 @@ void Simulator::simulate() {
 		mParticles[i]->mVelocity += Eigen::Vector3d(derivatives[i-1][3], derivatives[i - 1][4], derivatives[i - 1][5]) * mTimeStep;
 	}
 
+	for (int i = 1; i < forces.size(); i++) {
+		delete forces[i];
+	}
+
+	forces.resize(1);
 }
 

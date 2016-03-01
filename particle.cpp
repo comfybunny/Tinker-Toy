@@ -29,16 +29,6 @@ void Particle::draw() {
     glPopMatrix();
 }
 
-void Particle::update_accumulated_forces(int indexNum, std::vector<Force*> forces_list){
-	// cout << forces_list.size()<< endl;
-	for (std::vector<Force*>::iterator i = forces_list.begin(); i != forces_list.end(); ++i) {
-		Force* currForce = *i;
-		std::vector<int> currForceParticlesImpacted = currForce->getParticlesImpacted();
-		// check to see if force is applicable to this particle
-		if (std::find(currForceParticlesImpacted.begin(), currForceParticlesImpacted.end(), indexNum) != currForceParticlesImpacted.end()){
-			mAccumulatedForce += currForce->calculateForceAdded(this);
-		}
-	}
-	// cout << (*forces_list.begin())->getAcceleration() << endl;
-	
+void Particle::addForce(Eigen::Vector3d toAdd){
+	mAccumulatedForce += toAdd;
 }

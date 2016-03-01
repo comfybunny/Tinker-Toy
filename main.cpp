@@ -243,6 +243,7 @@ void myGlutMouse(int button, int state, int x, int y) {
 	else if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP) {
 		//cout << "Right Mouse Up" << endl;
 		// create force to be added here
+		mySimulator.addForce(screen2scene(x,y)-mySimulator.getParticle(mySimulator.getSelectedParticle())->mPosition);
 		mySimulator.toggleEditForceBoolean();
     }
     

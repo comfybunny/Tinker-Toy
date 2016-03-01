@@ -51,12 +51,14 @@ public:
 
 	void updateSelectedParticle(Eigen::Vector3d click_pt);
 
+	void addForce(Eigen::Vector3d mouseVector);
+
 private:
     double mTimeStep;       // time step
     std::vector<Particle*> mParticles;
 	std::vector<Force*> forces;
 	std::vector<Constraint> constraints;
-	Gravity gravity;
+	Force gravity = Force(Eigen::Vector3d(0.0, -9.8, 0.0));
 	Solver solver;
 	Eigen::MatrixXd W;
 	int selected_particle;
