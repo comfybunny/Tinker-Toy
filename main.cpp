@@ -178,7 +178,7 @@ void myGlutDisplay(void) {
 		if (i == mySimulator.getSelectedParticle()) {
 			glColor4d(.2, .2, .9, 1.0);
 			glPushMatrix();
-			glTranslated(mySimulator.getParticle(i)->mPosition[0], mySimulator.getParticle(i)->mPosition[0], mySimulator.getParticle(i)->mPosition[0]);
+			glTranslated(mySimulator.getParticle(i)->mPosition[0], mySimulator.getParticle(i)->mPosition[1], mySimulator.getParticle(i)->mPosition[2]);
 			glutSolidSphere(0.01, 20, 20);
 			glPopMatrix();
 		}

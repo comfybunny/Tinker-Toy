@@ -8,12 +8,14 @@ using namespace std;
 Simulator::Simulator() {
     // initialize the particles
 	reset();
+	/**
 	selected_particle = 0;
 	feedback = false;
 	ks = 50;
 	kd = 30;
 	editing_force = false;
 	selecting = false;
+	**/
 }
 
 int Simulator::getNumParticles() {
@@ -29,6 +31,15 @@ double Simulator::getTimeStep() {
 }
 
 void Simulator::reset() {
+
+	selected_particle = 0;
+	feedback = false;
+	ks = 50;
+	kd = 30;
+	editing_force = false;
+	selecting = false;
+
+
 	mParticles.clear();
 	mParticles.push_back(new Particle());
 	mParticles.push_back(new Particle());
@@ -138,7 +149,7 @@ void Simulator::updateSelectedParticle(Eigen::Vector3d click_pt){
 	// find closest particle to this point and then set it
 	int closestPointIndex = 0;
 	float distance = FLT_MAX;
-	for (int i = 0; i < (int)mParticles.size(); i++) {
+	for (int i = 0; i < mParticles.size(); i++) {
 		float currDistance = sqrt(pow(click_pt[0] - mParticles[i]->mPosition[0], 2) + pow(click_pt[1] - mParticles[i]->mPosition[1], 2));
 		if (currDistance < distance) {
 			distance = currDistance;
