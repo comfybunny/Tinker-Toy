@@ -37,8 +37,6 @@ void Simulator::reset() {
 	ks = 50;
 	kd = 30;
 	editing_force = false;
-	selecting = false;
-
 
 	mParticles.clear();
 	mParticles.push_back(new Particle());
@@ -113,16 +111,9 @@ char * Simulator::getSolverName(){
 }
 
 
-Eigen::Vector3d Simulator::getForceStart(){
-	return force_start;
-}
 
 Eigen::Vector3d Simulator::getForceEnd(){
 	return force_end;
-}
-
-void Simulator::setForceStart(Eigen::Vector3d newForce){
-	force_start = newForce;
 }
 
 bool Simulator::getEditingForceBoolean(){
@@ -135,14 +126,6 @@ void Simulator::toggleEditForceBoolean(){
 
 void Simulator::setForceEnd(Eigen::Vector3d newForce){
 	force_end = newForce;
-}
-
-bool Simulator::getSelectingBool(){
-	return selecting;
-}
-
-void Simulator::toggleSelectingBool(){
-	selecting = !selecting;
 }
 
 void Simulator::updateSelectedParticle(Eigen::Vector3d click_pt){

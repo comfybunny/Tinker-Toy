@@ -213,8 +213,6 @@ void myGlutKeyboard(unsigned char key, int x, int y) {
 		case 's':
 			mySimulator.toggleSolver();
 			break;
-		case 't':
-			mySimulator.toggleSelectingBool();
         default:
             break;
     }
@@ -225,33 +223,27 @@ void myGlutKeyboard(unsigned char key, int x, int y) {
 void myGlutMouse(int button, int state, int x, int y) {
     mouse_down = (state == GLUT_DOWN);
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		if (!mySimulator.getSelectingBool()) {
-			// selecting particles to start the center one will be selected
-			float normalized_x = float(x)*2.0 / window_width - 1.0;
-			float normalized_y = 1.0 - float(y)*2.0 / window_height;
-			float scene_x = tan(fov / 2.0*M_PI / 180.0)*normalized_x*window_width / (1.0*window_height);
-			float scene_y = tan(fov / 2.0*M_PI / 180.0)*normalized_y;
-			mySimulator.addParticle(scene_x, scene_y);
-			// cout << mySimulator.getNumParticles() << endl;
-			// cout << scene_x << endl;
-			// cout << scene_y << endl;
-		}
-		else {
-			mySimulator.updateSelectedParticle(screen2scene(x,y));
-			mySimulator.setForceStart(mySimulator.getParticle(mySimulator.getSelectedParticle())->mPosition);
-			mySimulator.setForceEnd(mySimulator.getParticle(mySimulator.getSelectedParticle())->mPosition);
-			mySimulator.toggleEditForceBoolean();
-		}
+		// selecting particles to start the center one will be selected
+		float normalized_x = float(x)*2.0 / window_width - 1.0;
+		float normalized_y = 1.0 - float(y)*2.0 / window_height;
+		float scene_x = tan(fov / 2.0*M_PI / 180.0)*normalized_x*window_width / (1.0*window_height);
+		float scene_y = tan(fov / 2.0*M_PI / 180.0)*normalized_y;
+		mySimulator.addParticle(scene_x, scene_y);
+		// cout << mySimulator.getNumParticles() << endl;
+		// cout << scene_x << endl;
+		// cout << scene_y << endl;
+
     }
-	else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP && mySimulator.getSelectingBool()) {
+	else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
+		//cout << "Right Mouse Clicked" << endl;
+		mySimulator.updateSelectedParticle(screen2scene(x, y));
+		mySimulator.setForceEnd(mySimulator.getParticle(mySimulator.getSelectedParticle())->mPosition);
 		mySimulator.toggleEditForceBoolean();
 	}
-	else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
-		cout << "Right Mouse Clicked" << endl;		
-	}
 	else if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP) {
-		cout << "Right Mouse Up" << endl;
+		//cout << "Right Mouse Up" << endl;
 		// create force to be added here
+		mySimulator.toggleEditForceBoolean();
     }
     
     glutPostRedisplay();
@@ -318,9 +310,6 @@ void ShowText()
 
 	strcpy(s_tmp, temp.c_str());
 	RenderBitmapString(10, 20 + 56, pFont, s_tmp);
-
-	strcpy(s_tmp, mySimulator.getSelectingBool() ? "\'t\': Toggle left click : Currently will SELECT a point" : "\'t\': Toggle left click : Currently will ADD a point");
-	RenderBitmapString(10, 20 + 70, pFont, s_tmp);
     
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
