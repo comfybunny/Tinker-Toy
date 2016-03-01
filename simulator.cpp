@@ -12,6 +12,8 @@ Simulator::Simulator() {
 	feedback = false;
 	ks = 50;
 	kd = 30;
+	editing_force = false;
+	selecting = false;
 }
 
 int Simulator::getNumParticles() {
@@ -100,6 +102,53 @@ char * Simulator::getSolverName(){
 }
 
 
+Eigen::Vector3d Simulator::getForceStart(){
+	return force_start;
+}
+
+Eigen::Vector3d Simulator::getForceEnd(){
+	return force_end;
+}
+
+void Simulator::setForceStart(Eigen::Vector3d newForce){
+	force_start = newForce;
+}
+
+bool Simulator::getEditingForceBoolean(){
+	return editing_force;
+}
+
+void Simulator::toggleEditForceBoolean(){
+	editing_force = !editing_force;
+}
+
+void Simulator::setForceEnd(Eigen::Vector3d newForce){
+	force_end = newForce;
+}
+
+bool Simulator::getSelectingBool(){
+	return selecting;
+}
+
+void Simulator::toggleSelectingBool(){
+	selecting = !selecting;
+}
+
+void Simulator::updateSelectedParticle(Eigen::Vector3d click_pt){
+	// find closest particle to this point and then set it
+	int closestPointIndex = 0;
+	float distance = FLT_MAX;
+	for (int i = 0; i < (int)mParticles.size(); i++) {
+		float currDistance = sqrt(pow(click_pt[0] - mParticles[i]->mPosition[0], 2) + pow(click_pt[1] - mParticles[i]->mPosition[1], 2));
+		if (currDistance < distance) {
+			distance = currDistance;
+			closestPointIndex = i;
+		}
+	}
+	selected_particle = closestPointIndex;
+}
+
+
 void Simulator::simulate() {
 	// clear force accumulator from previous iteration and update applied forces here
 	for (int i = 0; i < mParticles.size(); i++) {
@@ -160,7 +209,8 @@ void Simulator::simulate() {
 	if (feedback) {
 		tempCequation = tempCequation - ks*C - kd*Cdot;
 	}
-	Eigen::MatrixXd lambda = (jacobian*W*(jacobian.transpose())).inverse()*(tempCequation);
+	Eigen::MatrixXd lambda = (jacobian*W*(jacobian.transpose())).ldlt().solve(tempCequation);
+	//Eigen::MatrixXd lambda = (jacobian*W*(jacobian.transpose())).inverse()*(tempCequation);
 	Eigen::MatrixXd legal_forces = jacobian.transpose()*lambda;
 	
 	/**

@@ -41,6 +41,24 @@ public:
 
 	char* getSolverName();
 
+	Eigen::Vector3d getForceStart();
+
+	Eigen::Vector3d getForceEnd();
+
+	void setForceStart(Eigen::Vector3d newForce);
+
+	bool getEditingForceBoolean();
+
+	void toggleEditForceBoolean();
+
+	void setForceEnd(Eigen::Vector3d newForce);
+
+	bool getSelectingBool();
+
+	void toggleSelectingBool();
+
+	void updateSelectedParticle(Eigen::Vector3d click_pt);
+
 private:
     double mTimeStep;       // time step
     std::vector<Particle*> mParticles;
@@ -53,6 +71,10 @@ private:
 	bool feedback;
 	double ks;
 	double kd;
+	Eigen::Vector3d force_start;
+	Eigen::Vector3d force_end;
+	bool editing_force;
+	bool selecting;
 };
 
 
