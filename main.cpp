@@ -155,7 +155,7 @@ void myGlutDisplay(void) {
 	// draw force line
 	if (mySimulator.getEditingForceBoolean()) {
 		glBegin(GL_LINES);
-		Eigen::Vector3d p1 = mySimulator.getForceStart();
+		Eigen::Vector3d p1 = mySimulator.getParticle(mySimulator.getSelectedParticle())->mPosition;
 		Eigen::Vector3d p2 = mySimulator.getForceEnd();
 		glColor4d(0.2, 0.9, 0.2, 1);
 		glVertex3f(p1[0], p1[1], p1[2]);
@@ -238,18 +238,19 @@ void myGlutMouse(int button, int state, int x, int y) {
 		}
 		else {
 			mySimulator.updateSelectedParticle(screen2scene(x,y));
+			mySimulator.setForceStart(mySimulator.getParticle(mySimulator.getSelectedParticle())->mPosition);
+			mySimulator.setForceEnd(mySimulator.getParticle(mySimulator.getSelectedParticle())->mPosition);
+			mySimulator.toggleEditForceBoolean();
 		}
     }
-	else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
-		cout << "Right Mouse Clicked" << endl;
-		mySimulator.setForceStart(screen2scene(x, y));
-		mySimulator.setForceEnd(screen2scene(x, y));
+	else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP && mySimulator.getSelectingBool()) {
 		mySimulator.toggleEditForceBoolean();
-		
+	}
+	else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
+		cout << "Right Mouse Clicked" << endl;		
 	}
 	else if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP) {
 		cout << "Right Mouse Up" << endl;
-		mySimulator.toggleEditForceBoolean();
 		// create force to be added here
     }
     
