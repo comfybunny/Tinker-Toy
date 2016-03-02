@@ -297,7 +297,10 @@ void ShowText()
     
     pFont=(int*)GLUT_BITMAP_8_BY_13;
     // Display control instructions
-    
+
+	strcpy(s_tmp, "Left click adds a particle, right click and drag to add force :)");
+	RenderBitmapString(10, 20, pFont, s_tmp);
+
     strcpy(s_tmp,"\' \': Start/Stop simulation");
     RenderBitmapString(10, 20 + 14, pFont, s_tmp);
     
@@ -311,6 +314,8 @@ void ShowText()
 
 	strcpy(s_tmp, temp.c_str());
 	RenderBitmapString(10, 20 + 56, pFont, s_tmp);
+
+
     
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);

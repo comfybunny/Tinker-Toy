@@ -67,6 +67,7 @@ private:
 	double kd;
 	Eigen::Vector3d force_end;
 	bool editing_force;
+
 };
 
 
