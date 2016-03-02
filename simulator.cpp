@@ -144,7 +144,7 @@ void Simulator::updateSelectedParticle(Eigen::Vector3d click_pt){
 
 void Simulator::addForce(Eigen::Vector3d mouseVector){
 	// cout << mouseVector << endl;
-	Force* tempForce = new Force(mouseVector*1000);
+	Force* tempForce = new Force(mouseVector*10000);
 	//cout << mouseVector * 1000 << endl;
 	tempForce->addParticlesImpacted(selected_particle);
 	forces.push_back(tempForce);
@@ -162,15 +162,15 @@ void Simulator::simulate() {
 		for (int j = 0; j < forces.size(); j++) {
 			std::vector<int> currForceParticlesImpacted = forces[j]->getParticlesImpacted();
 			if (std::find(currForceParticlesImpacted.begin(), currForceParticlesImpacted.end(), i) != currForceParticlesImpacted.end()) {
-				if (j == 1) {
+				/**if (j == 1) {
 					cout << forces[j]->getAcceleration() << endl;
-				}
+				}**/
 				mParticles[i]->addForce(forces[j]->getAcceleration()*mParticles[i]->mMass);
 			}
 		}
 	}
 	
-	mParticles[1]->mAccumulatedForce.setZero();
+	// mParticles[1]->mAccumulatedForce.setZero();
 
 	Eigen::MatrixXd jacobian = Eigen::MatrixXd::Zero(constraints.size(), (mParticles.size()-1)*3);
 	Eigen::MatrixXd jacobianDot = Eigen::MatrixXd::Zero(constraints.size(), (mParticles.size() - 1) * 3);;
@@ -205,9 +205,10 @@ void Simulator::simulate() {
 	Eigen::VectorXd qdot((mParticles.size() - 1) * 3);
 
 	for (int i = 1; i < mParticles.size(); i++) {
+		
 		for (int temp = 0; temp < 3; temp++) {
-			Q((i - 1) * 3 + temp) = mParticles[i]->mAccumulatedForce(temp);
-			qdot((i - 1) * 3 + temp) = mParticles[i]->mVelocity(temp);
+			Q((i - 1) * 3 + temp) = mParticles[i]->mAccumulatedForce[temp];
+			qdot((i - 1) * 3 + temp) = mParticles[i]->mVelocity[temp];
 		}
 	}
 	
@@ -255,12 +256,19 @@ void Simulator::simulate() {
 	std::vector<Eigen::VectorXd> derivatives;
 	derivatives.resize(mParticles.size()-1);
 
+	/**if (forces.size() > 1) {
+		cout << mParticles[1]->mAccumulatedForce << endl;
+	}**/
+
 	for (int i = 1; i < mParticles.size(); i++) {
 		derivatives[i-1] = solver.solve_X_dot(mParticles[i]);
 		mParticles[i]->mPosition += Eigen::Vector3d(derivatives[i-1][0], derivatives[i - 1][1], derivatives[i - 1][2]) * mTimeStep;
 		mParticles[i]->mVelocity += Eigen::Vector3d(derivatives[i-1][3], derivatives[i - 1][4], derivatives[i - 1][5]) * mTimeStep;
+		//cout << mParticles[i]->mVelocity << endl;
 	}
-
+	/**if (forces.size() > 1) {
+		cout << forces[1]->getAcceleration() << endl;
+	}**/
 	for (int i = 1; i < forces.size(); i++) {
 		delete forces[i];
 	}

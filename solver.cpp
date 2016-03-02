@@ -26,6 +26,9 @@ Eigen::VectorXd Solver::solve_X_dot(Particle* particle) {
 			toReturn[4] = (particle->fhat[1] + particle->mAccumulatedForce[1]) / particle->mMass;
 			toReturn[5] = (particle->fhat[2] + particle->mAccumulatedForce[2]) / particle->mMass;
 
+			/**if (particle->mAccumulatedForce[1] != -9.8) {
+				cout << toReturn << endl;
+			}**/
 			break;
 		case midpoint_method:
 
